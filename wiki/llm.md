@@ -55,11 +55,11 @@ Docs:
 
 ### LLM provider API
 
-An LLM provider API is an [`HTTP` API](./web-api.md#http-api) exposed by an LLM provider (e.g., `OpenAI`, `Anthropic`, [`OpenRouter`](#openrouter)) that allows applications and tools to send [requests](./http.md#http-request) to their [LLMs](#what-is-an-llm) programmatically.
+An [LLM provider](#llm-provider) API allows [applications](./software-types.md#application) to:
 
-[Coding agents](./coding-agents.md#what-is-a-coding-agent) use an LLM provider API to send [prompts](#prompt) and receive generated responses, [authenticating](./http-auth.md#http-authentication) each [request](#request-to-llm-provider-api) with an [API key](./web-api.md#api-key).
+- send [prompts](#prompt) to the provider's [LLMs](#what-is-an-llm)
 
-<!-- TODO links - authentication, responses -->
+- receive generated [responses](#response)
 
 Docs:
 
