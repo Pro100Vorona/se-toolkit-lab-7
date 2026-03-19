@@ -136,9 +136,10 @@ Path: `~/.qwen/oauth_creds.json`.
 
 ## Set up the `Qwen Code` CLI (REMOTE)
 
-1. [Connect to the VM](./vm-access.md#connect-to-the-vm-as-the-user-user-local).
-
-2. [Set up the `Qwen Code` CLI (REMOTE)](#set-up-the-qwen-code-cli).
+1. [Set up the `Qwen Code` CLI (LOCAL)](#set-up-the-qwen-code-cli).
+2. [Copy the `Qwen Code` credentials file to the VM](#copy-the-qwen-code-credentials-file-to-the-vm-local).
+3. [Connect to the VM as the user `admin`](./vm-access.md#connect-to-the-vm-as-the-user-user-local).
+4. [Set up the `Qwen Code` CLI (REMOTE)](#set-up-the-qwen-code-cli).
 
 ## Check the `Qwen Code` credentials file
 
