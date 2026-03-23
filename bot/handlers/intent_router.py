@@ -219,3 +219,5 @@ async def route_intent(user_message: str) -> str:
     finally:
         await lms_client.close()
         await llm_client.close()
+
+# Task 3: Intent Routing with LLM tool calling
