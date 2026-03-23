@@ -10,7 +10,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command, CommandStart
-from handlers.commands import (
+from handlers.slash.commands import (
     handle_start,
     handle_help,
     handle_health,
