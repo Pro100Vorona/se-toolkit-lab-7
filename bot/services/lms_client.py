@@ -259,3 +259,5 @@ class LMSClient:
             return {"error": f"HTTP {e.response.status_code}"}
         except Exception as e:
             return {"error": str(e)}
+
+# Task 2: Backend Integration - LMS API client
