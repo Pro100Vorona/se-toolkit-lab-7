@@ -91,3 +91,81 @@ By the end of this lab, you should be able to say:
 2. [Backend Integration](./lab/tasks/required/task-2.md) — P0: slash commands + real data
 3. [Intent-Based Natural Language Routing](./lab/tasks/required/task-3.md) — P1: LLM tool use
 4. [Containerize and Document](./lab/tasks/required/task-4.md) — P3: containerize + deploy
+
+## Deploy
+
+### Prerequisites
+
+1. VM with Docker and Docker Compose installed
+2. `.env.docker.secret` file with required environment variables
+3. `.env.bot.secret` file with bot token and LLM credentials
+
+### Environment Variables
+
+Copy `.env.docker.example` to `.env.docker.secret` and fill in:
+
+```bash
+# Bot token from @BotFather
+BOT_TOKEN=your-telegram-bot-token
+
+# LMS API key
+LMS_API_KEY=my-secret-api-key
+
+# LLM API credentials
+LLM_API_KEY=your-qwen-api-key
+LLM_API_MODEL=coder-model
+```
+
+### Deploy Commands
+
+1. **Stop the background bot process** (if running):
+   ```bash
+   cd ~/se-toolkit-lab-7
+   pkill -f "bot.py" 2>/dev/null
+   ```
+
+2. **Build and start all services**:
+   ```bash
+   docker compose --env-file .env.docker.secret up --build -d
+   ```
+
+3. **Verify services are running**:
+   ```bash
+   docker compose --env-file .env.docker.secret ps
+   ```
+   
+   You should see `bot`, `backend`, `postgres`, `pgadmin`, and `caddy` all running.
+
+4. **Check bot logs**:
+   ```bash
+   docker compose --env-file .env.docker.secret logs bot --tail 20
+   ```
+   
+   Look for "Bot is running... Press Ctrl+C to stop." and no Python tracebacks.
+
+### Verify in Telegram
+
+1. Open Telegram and find your bot
+2. Send `/start` — should receive welcome message with inline keyboard
+3. Send `/health` — should show backend status
+4. Ask "what labs are available?" — should list labs from the backend
+5. Ask "which lab has the lowest pass rate?" — should show multi-step analysis
+
+### Troubleshooting
+
+| Symptom | Solution |
+|---------|----------|
+| Bot container restarting | Check logs: `docker compose logs bot` |
+| `/health` fails | Verify `LMS_API_URL=http://backend:8000` (not localhost) |
+| LLM queries fail | Verify `LLM_API_BASE_URL=http://host.docker.internal:42005/v1` |
+| "BOT_TOKEN is required" | Add `BOT_TOKEN` to `.env.docker.secret` |
+
+### Update Deployment
+
+After code changes:
+
+```bash
+cd ~/se-toolkit-lab-7
+git pull
+docker compose --env-file .env.docker.secret up --build -d
+```

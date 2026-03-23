@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls *)",
+      "Bash(curl *)",
+      "Bash(docker ps)",
+      "Bash(sleep *)",
+      "Bash(uv *)",
+      "Bash(docker compose *)",
+      "Bash(cat *)",
+      "Bash(grep *)",
+      "Bash(echo *)",
+      "Bash(pkill *)"
+    ]
+  }
+}
