@@ -11,7 +11,16 @@ from config import load_config
 
 async def handle_start(user_input: str) -> str:
     """Handle /start command."""
-    return "Welcome! I'm your LMS assistant bot. Use /help to see what I can do."
+    return """Welcome! I'm your LMS assistant bot. 
+
+I can help you with:
+- Check system health
+- Browse available labs
+- View scores and pass rates
+- Find top learners
+- And much more!
+
+Just ask me anything or use /help to see all commands."""
 
 
 async def handle_help(user_input: str) -> str:
@@ -21,7 +30,14 @@ async def handle_help(user_input: str) -> str:
 /help - Show this help
 /health - Check backend status
 /labs - List available labs
-/scores <lab> - Show scores for a lab"""
+/scores <lab> - Show scores for a lab
+
+You can also ask me questions in plain language like:
+- "What labs are available?"
+- "Show me scores for lab 4"
+- "Which lab has the lowest pass rate?"
+- "Who are the top 5 students?"
+"""
 
 
 async def handle_health(user_input: str) -> str:

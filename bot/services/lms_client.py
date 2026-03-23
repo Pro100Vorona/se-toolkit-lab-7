@@ -80,7 +80,7 @@ class LMSClient:
     
     async def get_scores(self, lab: str) -> dict:
         """Get pass rates for a specific lab.
-        
+
         Returns a dict with 'scores' list or 'error' message.
         """
         try:
@@ -88,7 +88,7 @@ class LMSClient:
             response = await client.get("/analytics/pass-rates", params={"lab": lab})
             response.raise_for_status()
             data = response.json()
-            
+
             # Parse the response — adjust based on actual API format
             scores = []
             if isinstance(data, list):
@@ -98,8 +98,161 @@ class LMSClient:
                         rate = item.get("pass_rate", item.get("rate", 0))
                         attempts = item.get("attempts", 0)
                         scores.append({"task": task, "pass_rate": rate, "attempts": attempts})
-            
+
             return {"scores": scores, "lab": lab}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_labs_raw(self) -> dict:
+        """Get raw items data (labs and tasks).
+        
+        Returns the raw list from the API.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get("/items/")
+            response.raise_for_status()
+            return {"items": response.json()}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_learners(self) -> dict:
+        """Get list of enrolled learners.
+        
+        Returns a dict with 'learners' list or 'error' message.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get("/learners/")
+            response.raise_for_status()
+            return {"learners": response.json()}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_scores_analytics(self, lab: str) -> dict:
+        """Get score distribution analytics for a lab.
+        
+        Returns a dict with scores or 'error' message.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get("/analytics/scores", params={"lab": lab})
+            response.raise_for_status()
+            return {"scores": response.json()}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_pass_rates(self, lab: str) -> dict:
+        """Get per-task pass rates for a lab.
+        
+        Returns a dict with pass rates or 'error' message.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get("/analytics/pass-rates", params={"lab": lab})
+            response.raise_for_status()
+            return {"pass_rates": response.json()}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_timeline(self, lab: str) -> dict:
+        """Get submission timeline for a lab.
+        
+        Returns a dict with timeline data or 'error' message.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get("/analytics/timeline", params={"lab": lab})
+            response.raise_for_status()
+            return {"timeline": response.json()}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_groups(self, lab: str) -> dict:
+        """Get per-group performance for a lab.
+        
+        Returns a dict with group data or 'error' message.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get("/analytics/groups", params={"lab": lab})
+            response.raise_for_status()
+            return {"groups": response.json()}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_top_learners(self, lab: str, limit: int = 5) -> dict:
+        """Get top learners for a lab.
+        
+        Returns a dict with top learners or 'error' message.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get("/analytics/top-learners", params={"lab": lab, "limit": limit})
+            response.raise_for_status()
+            return {"top_learners": response.json()}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_completion_rate(self, lab: str) -> dict:
+        """Get completion rate for a lab.
+        
+        Returns a dict with completion rate or 'error' message.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get("/analytics/completion-rate", params={"lab": lab})
+            response.raise_for_status()
+            return {"completion_rate": response.json()}
+        except httpx.ConnectError:
+            return {"error": f"connection refused ({self.base_url})"}
+        except httpx.HTTPStatusError as e:
+            return {"error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def trigger_sync(self) -> dict:
+        """Trigger ETL pipeline sync.
+        
+        Returns a dict with sync status or 'error' message.
+        """
+        try:
+            client = await self._get_client()
+            response = await client.post("/pipeline/sync", json={})
+            response.raise_for_status()
+            return {"sync": response.json()}
         except httpx.ConnectError:
             return {"error": f"connection refused ({self.base_url})"}
         except httpx.HTTPStatusError as e:

@@ -10,6 +10,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command, CommandStart
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from handlers.slash.commands import (
     handle_start,
     handle_help,
@@ -17,6 +18,7 @@ from handlers.slash.commands import (
     handle_labs,
     handle_scores,
 )
+from handlers.intent_router import route_intent
 from config import load_config
 
 
@@ -40,8 +42,11 @@ async def process_command(command: str) -> str:
     if cmd in COMMANDS:
         handler = COMMANDS[cmd]
         return await handler(args)
-    else:
+    elif cmd.startswith("/"):
         return f"Unknown command: {cmd}. Use /help to see available commands."
+    else:
+        # Not a command - route to LLM intent router
+        return await route_intent(command)
 
 
 def run_test_mode(command: str) -> None:
@@ -53,18 +58,32 @@ def run_test_mode(command: str) -> None:
 
 async def telegram_handler(message: types.Message, command: str = None) -> None:
     """Handle a Telegram message by routing to the appropriate handler."""
-    # Get the command from the message if not provided
-    if command is None:
-        # Extract command from message text
-        text = message.text or ""
-        parts = text.split(maxsplit=1)
-        command = parts[0].lower() if parts else ""
-
-    # Build the full command string (command + args)
-    full_command = message.text or ""
-
-    # Route to handler
-    response = await process_command(full_command)
+    text = message.text or ""
+    
+    # Check if it's a slash command
+    if text.startswith("/"):
+        if command:
+            # Known command - route to slash handler
+            full_command = text
+            response = await process_command(full_command)
+            
+            # Send with keyboard for /start
+            if command == "/start":
+                keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="📚 Available Labs", callback_data="labs")],
+                    [InlineKeyboardButton(text="🏥 Health Check", callback_data="health")],
+                    [InlineKeyboardButton(text="📊 Scores", callback_data="scores")],
+                    [InlineKeyboardButton(text="❓ Help", callback_data="help")],
+                ])
+                await message.answer(response, reply_markup=keyboard)
+                return
+        else:
+            # Unknown command
+            response = f"Unknown command: {text}. Use /help to see available commands."
+    else:
+        # Plain text - route to LLM intent router
+        response = await route_intent(text)
+    
     await message.answer(response)
 
 
@@ -90,6 +109,9 @@ async def run_telegram_bot() -> None:
     dp.message(Command("health"))(lambda msg: telegram_handler(msg, "/health"))
     dp.message(Command("labs"))(lambda msg: telegram_handler(msg, "/labs"))
     dp.message(Command("scores"))(lambda msg: telegram_handler(msg, "/scores"))
+    
+    # Register handler for plain text messages (non-commands)
+    dp.message()(lambda msg: telegram_handler(msg))
 
     # Start polling
     print("Bot is running... Press Ctrl+C to stop.")
